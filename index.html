@@ -509,6 +509,63 @@
       color: var(--muted);
       line-height: 1.45;
     }
+    .formula-shelf {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .formula-note {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+      min-height: 164px;
+    }
+    .formula-note h5 {
+      margin: 0;
+      font-size: .94rem;
+      line-height: 1.15;
+    }
+    .formula-note code {
+      display: block;
+      font-family: var(--mono);
+      font-size: .84rem;
+      color: #214d86;
+      background: var(--blue-soft);
+      border-radius: 6px;
+      padding: 9px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    .formula-note p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .85rem;
+      line-height: 1.42;
+    }
+    .activation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .activation-output {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fffaf0;
+      padding: 10px;
+    }
+    .activation-output b {
+      display: block;
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      margin-bottom: 3px;
+    }
+    .activation-output span {
+      color: var(--muted);
+      font-size: .78rem;
+    }
 
     .prompt-list {
       display: grid;
@@ -574,6 +631,39 @@
       font-weight: 750;
     }
     .exam-question textarea { min-height: 74px; }
+    .exam-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .exam-review {
+      display: none;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fffaf0;
+      padding: 12px;
+    }
+    .exam-review.show {
+      display: grid;
+      gap: 8px;
+    }
+    .exam-review strong {
+      color: var(--green);
+      font-size: .9rem;
+    }
+    .exam-review ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #3d3b36;
+      line-height: 1.4;
+      font-size: .9rem;
+    }
+    .exam-review small {
+      color: var(--muted);
+      line-height: 1.35;
+    }
 
     .memory-stack {
       display: grid;
@@ -643,6 +733,9 @@
       .hero-grid, .split, .formula-lab, .exam-layout {
         grid-template-columns: 1fr;
       }
+      .formula-shelf {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+      }
     }
 
     @media (max-width: 640px) {
@@ -652,6 +745,9 @@
         flex-direction: column;
       }
       .quick-stats, .lab-controls {
+        grid-template-columns: 1fr;
+      }
+      .formula-shelf, .activation-grid {
         grid-template-columns: 1fr;
       }
       nav {
@@ -694,7 +790,7 @@
       <div class="side-panel">
         <strong>Study progress</strong>
         <div class="meter" aria-label="Study progress"><span id="progressBar"></span></div>
-        <p id="progressText">0 of 10 practice tasks checked off.</p>
+        <p id="progressText">0 of 12 practice tasks checked off.</p>
       </div>
     </aside>
 
@@ -806,7 +902,7 @@
       <section id="formula" class="section">
         <div class="section-head">
           <h3>Formula Lab</h3>
-          <p>Practise the linear model and the probability language that appears in the notes.</p>
+          <p>Practise the linear model, loss functions, probability language, and neural-network formulas that appear in the notes.</p>
         </div>
         <div class="formula-lab">
           <div class="formula-box">
@@ -827,6 +923,154 @@ t = 36.416 - 0.0133 x</code>
           </div>
         </div>
 
+        <div class="section-head">
+          <h3>Formula Reference</h3>
+          <p>Use these as active-recall targets: cover the explanation, say what every symbol means, then check the short note.</p>
+        </div>
+
+        <div class="formula-shelf">
+          <article class="formula-note">
+            <h5>Training example</h5>
+            <code>(x_n, t_n)</code>
+            <p>x is the attribute/input and t is the target. The Olympic example uses year as x and winning time as t.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Linear model</h5>
+            <code>t = f(x)
+t = w0 + w1 x
+t = w^T x</code>
+            <p>w0 and w1 are parameters. Vector form keeps the model compact when there are more attributes.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Loss at one point</h5>
+            <code>error_n = t_n - y_n
+loss_n = (t_n - y_n)^2</code>
+            <p>The notes use squared error intuition: bad predictions produce larger penalties.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Mean square error</h5>
+            <code>MSE = (1/N) sum_n (t_n - y_n)^2</code>
+            <p>Average the loss over all training points to get one number to minimise.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Matrix prediction</h5>
+            <code>y = Xw
+t_new = X_new w</code>
+            <p>X stacks the input rows. A new row X_new gives a new prediction after multiplying by w.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Parameter solution</h5>
+            <code>w = inv(X.T @ X) @ X.T @ t</code>
+            <p>This is the Python expression from the notes for fitting the linear regression parameters.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Additive noise</h5>
+            <code>t_n = w^T x_n + epsilon_n
+epsilon ~ random variable</code>
+            <p>Noise represents unpredictable error. Modelling it helps describe confidence.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Discrete probability</h5>
+            <code>P(X = x)
+sum_x P(X = x) = 1</code>
+            <p>Use for countable outcomes such as coin tosses, dice rolls, or number of emails.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Continuous density</h5>
+            <code>p(x)
+P(a <= X <= b) = area under p(x)</code>
+            <p>Densities are not probabilities. Probabilities come from ranges/areas.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Joint and independence</h5>
+            <code>P(X = x, Y = y)
+Independent: P(X,Y) = P(X)P(Y)</code>
+            <p>If one outcome does not depend on the other, the variables are independent.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Conditioning</h5>
+            <code>P(X = x | Y = y)
+p(t_n | x_n, w)</code>
+            <p>Conditioning means probability or density given known information.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Likelihood</h5>
+            <code>L(w, sigma^2) = p(t | X, w, sigma^2)</code>
+            <p>Likelihood evaluates how well parameters explain fixed observed data. For continuous variables, it is not a probability.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Perceptron score</h5>
+            <code>z = w^T x + b
+y = activation(z)</code>
+            <p>A perceptron computes a weighted sum plus bias, then applies an activation.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Activation functions</h5>
+            <code>sigmoid(z): 0 to 1
+tanh(z): -1 to 1
+ReLU(z): max(0, z)</code>
+            <p>The notes list sigmoid, hyperbolic tangent, and ReLU for non-linear behaviour.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Network losses</h5>
+            <code>MSE: regression-style error
+Cross-entropy: classification error</code>
+            <p>The ANN training notes mention MSE and cross-entropy before backpropagation.</p>
+          </article>
+          <article class="formula-note">
+            <h5>Gradient descent</h5>
+            <code>Minimise J(w)
+w <- w - learning_rate * gradient</code>
+            <p>Use gradients to update weights so the cost/loss decreases.</p>
+          </article>
+          <article class="formula-note">
+            <h5>K-fold cross-validation</h5>
+            <code>K = 4:
+train on 3 folds, test on 1 fold
+repeat 4 runs</code>
+            <p>Use the mean and variance of performance to compare hyperparameters.</p>
+          </article>
+          <article class="formula-note">
+            <h5>CNN output size</h5>
+            <code>32x32x3 image
+3x3x3 filter -> 30x30x1 map
+30 x 30 = 900 neurons</code>
+            <p>This is the convolution example from the notes. Padding can keep output size the same.</p>
+          </article>
+          <article class="formula-note">
+            <h5>RNN hidden state</h5>
+            <code>h(t) = memory at sequence step t
+activation = ReLU, tanh, or sigmoid</code>
+            <p>RNN output uses memory from previous sequence steps plus the current input.</p>
+          </article>
+          <article class="formula-note">
+            <h5>LSTM gates</h5>
+            <code>forget gate: keep/discard C(t-1)
+input gate: candidate update
+output gate: expose useful state</code>
+            <p>LSTMs are RNNs with gates that manage what information is remembered.</p>
+          </article>
+        </div>
+
+        <div class="formula-lab">
+          <div class="formula-box">
+            <h4>Activation calculator</h4>
+            <code>z = weighted input + bias
+sigmoid, tanh, and ReLU transform z
+into non-linear neuron output.</code>
+            <label>z value <input id="zValue" type="number" step="0.1" value="1.5"></label>
+            <button id="activationBtn" class="primary">Calculate activations</button>
+          </div>
+          <div class="lab-result">
+            <div class="activation-grid">
+              <div class="activation-output"><b id="sigmoidOut">0.8176</b><span>sigmoid(z)</span></div>
+              <div class="activation-output"><b id="tanhOut">0.9051</b><span>tanh(z)</span></div>
+              <div class="activation-output"><b id="reluOut">1.5000</b><span>ReLU(z)</span></div>
+            </div>
+            <span id="activationText">Positive z gives high sigmoid/tanh values and passes through ReLU unchanged.</span>
+          </div>
+        </div>
+
         <div class="split">
           <div class="panel">
             <h4>Formula Notes</h4>
@@ -834,6 +1078,7 @@ t = 36.416 - 0.0133 x</code>
               <div class="memory-item"><b>L</b><span><strong>MSE</strong><br>Average squared error across training points gives one loss value to minimise.</span></div>
               <div class="memory-item"><b>W</b><span><strong>Matrix solution</strong><br>The notes use w = inv(X.T @ X) @ X.T @ t for linear regression parameters.</span></div>
               <div class="memory-item"><b>P</b><span><strong>Likelihood</strong><br>Evaluate how likely the observed data is under model parameters, then choose parameters that maximise it.</span></div>
+              <div class="memory-item"><b>N</b><span><strong>Neural nets</strong><br>Use weighted sums, activations, losses, backpropagation, and gradient descent to update weights.</span></div>
             </div>
           </div>
           <div class="panel">
@@ -841,6 +1086,8 @@ t = 36.416 - 0.0133 x</code>
             <div class="prompt-list">
               <label class="prompt"><input type="checkbox" data-task="formula1"><span><b>Explain each symbol</b>Define x, t, w0, w1, X, and w without looking.</span><span class="tag">Symbols</span></label>
               <label class="prompt"><input type="checkbox" data-task="formula2"><span><b>Spot the assumption</b>State why the Olympic model cannot be trusted indefinitely.</span><span class="tag">Limits</span></label>
+              <label class="prompt"><input type="checkbox" data-task="formula3"><span><b>Probability check</b>Explain why likelihood and probability are not the same for continuous variables.</span><span class="tag">Likelihood</span></label>
+              <label class="prompt"><input type="checkbox" data-task="formula4"><span><b>Activation check</b>Say the output range for sigmoid, tanh, and ReLU.</span><span class="tag">ANN</span></label>
             </div>
           </div>
         </div>
@@ -860,9 +1107,13 @@ t = 36.416 - 0.0133 x</code>
               <button id="timerStart" class="primary">Start</button>
               <button id="timerReset">Reset</button>
             </div>
+            <div class="exam-actions">
+              <button id="submitExam" class="primary">Submit Answers</button>
+              <button id="clearExam">Clear Draft</button>
+            </div>
             <div class="prompt-list" style="margin-top: 14px;">
-              <label class="prompt"><input type="checkbox" data-task="exam1"><span><b>Write one timed round</b>Keep each answer compact and technical.</span><span class="tag">Exam</span></label>
-              <label class="prompt"><input type="checkbox" data-task="exam2"><span><b>Self-mark</b>Underline the definition, example, and limitation in each answer.</span><span class="tag">Marking</span></label>
+              <label class="prompt"><input type="checkbox" data-task="exam1"><span><b>Submit one timed round</b>Write compact answers, then use Submit Answers to reveal the marking points.</span><span class="tag">Exam</span></label>
+              <label class="prompt"><input type="checkbox" data-task="exam2"><span><b>Self-mark</b>Compare your answer with the key points and add one missing idea.</span><span class="tag">Marking</span></label>
               <label class="prompt"><input type="checkbox" data-task="exam3"><span><b>Repair weak answer</b>Rewrite the lowest-confidence answer from memory.</span><span class="tag">Fix</span></label>
             </div>
           </div>
@@ -969,12 +1220,60 @@ t = 36.416 - 0.0133 x</code>
     ];
 
     const examPrompts = [
-      "Compare classification, regression, clustering, and projection. Give one example for each.",
-      "Explain the Olympic linear regression model, including attributes, targets, parameters, loss, and one limitation.",
-      "Why does overfitting happen, and how do train/test splits or K-fold cross-validation help?",
-      "Explain the difference between a discrete random variable, a continuous random variable, and a density.",
-      "Describe the training loop for an artificial neural network from initial weights to backpropagation.",
-      "Compare CNNs, RNNs, and LSTMs by the type of data or structure each is designed to handle."
+      {
+        prompt: "Compare classification, regression, clustering, and projection. Give one example for each.",
+        points: [
+          "Classification is supervised and predicts categories, such as spam detection or disease diagnosis.",
+          "Regression is supervised and predicts continuous values, such as stock price or Olympic winning time.",
+          "Clustering is unsupervised and groups similar objects without labels.",
+          "Projection reduces dimensions, often to visualise complex data."
+        ]
+      },
+      {
+        prompt: "Explain the Olympic linear regression model, including attributes, targets, parameters, loss, and one limitation.",
+        points: [
+          "Attribute/input x is Olympic year; target t is winning time.",
+          "The linear model is t = w0 + w1x, where w0 and w1 are learned parameters.",
+          "MSE/loss measures average squared prediction error over training data.",
+          "A key limitation is that winning time cannot decrease forever and the relationship may not stay linear."
+        ]
+      },
+      {
+        prompt: "Why does overfitting happen, and how do train/test splits or K-fold cross-validation help?",
+        points: [
+          "Overfitting happens when a model fits training noise too closely and generalises poorly.",
+          "A train/test split checks performance on data not used for fitting.",
+          "K-fold cross-validation repeats this across folds and compares mean/variance.",
+          "It helps choose hyperparameters such as hidden units, learning rate, or batch size."
+        ]
+      },
+      {
+        prompt: "Explain the difference between a discrete random variable, a continuous random variable, and a density.",
+        points: [
+          "Discrete random variables have countable outcomes, such as coin tosses or dice rolls.",
+          "Continuous random variables have uncountable outcomes, such as winning time or model noise.",
+          "A density p(x) shows relative likelihood for continuous values.",
+          "Continuous probabilities come from area over a range; density is not itself probability."
+        ]
+      },
+      {
+        prompt: "Describe the training loop for an artificial neural network from initial weights to backpropagation.",
+        points: [
+          "Initialise weights W.",
+          "Run forward propagation to produce predicted output y_hat.",
+          "Compute error/loss, such as MSE or cross-entropy.",
+          "Backpropagate errors and update weights using gradient descent over multiple epochs."
+        ]
+      },
+      {
+        prompt: "Compare CNNs, RNNs, and LSTMs by the type of data or structure each is designed to handle.",
+        points: [
+          "CNNs use convolution filters and pooling, often for image-like spatial data.",
+          "RNNs learn from sequences using a temporal loop or hidden state h(t).",
+          "LSTMs are RNNs with gates that keep, discard, and expose information.",
+          "Examples include image classification for CNNs and language/video/sequential data for RNNs or LSTMs."
+        ]
+      }
     ];
 
     const focusItems = [
@@ -1091,6 +1390,21 @@ t = 36.416 - 0.0133 x</code>
       $("#predictionText").textContent = `Computed as ${w0} + (${w1} x ${x}). Interpret it only inside the model assumptions.`;
     }
 
+    function calculateActivations() {
+      const z = Number($("#zValue").value);
+      const sigmoid = 1 / (1 + Math.exp(-z));
+      const tanh = Math.tanh(z);
+      const relu = Math.max(0, z);
+      $("#sigmoidOut").textContent = sigmoid.toFixed(4);
+      $("#tanhOut").textContent = tanh.toFixed(4);
+      $("#reluOut").textContent = relu.toFixed(4);
+      $("#activationText").textContent = z < 0
+        ? "Negative z is compressed by sigmoid/tanh and clipped to 0 by ReLU."
+        : z === 0
+          ? "At z = 0, sigmoid is 0.5, tanh is 0, and ReLU is 0."
+          : "Positive z gives high sigmoid/tanh values and passes through ReLU unchanged.";
+    }
+
     function updateProgress() {
       const checked = $$("[data-task]:checked").map(input => input.dataset.task);
       localStorage.setItem("mlFinalsTasks", JSON.stringify(checked));
@@ -1109,13 +1423,58 @@ t = 36.416 - 0.0133 x</code>
       updateProgress();
     }
 
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     function renderExam() {
-      $("#examQuestions").innerHTML = examPrompts.map((prompt, index) => `
+      const saved = JSON.parse(localStorage.getItem("mlFinalsExamAnswers") || "[]");
+      $("#examQuestions").innerHTML = examPrompts.map((item, index) => `
         <div class="exam-question">
-          <p>${index + 1}. ${prompt}</p>
-          <textarea aria-label="Answer for question ${index + 1}" placeholder="Write a compact exam answer..."></textarea>
+          <p>${index + 1}. ${item.prompt}</p>
+          <textarea data-exam-answer="${index}" aria-label="Answer for question ${index + 1}" placeholder="Write a compact exam answer...">${escapeHtml(saved[index] || "")}</textarea>
+          <div class="exam-review" data-exam-review="${index}">
+            <strong>Key points to compare against</strong>
+            <ul>${item.points.map(point => `<li>${point}</li>`).join("")}</ul>
+            <small data-exam-meta="${index}">Submit to see answer length and review status.</small>
+          </div>
         </div>
       `).join("");
+    }
+
+    function saveExamAnswers() {
+      const answers = $$("[data-exam-answer]").map(input => input.value.trim());
+      localStorage.setItem("mlFinalsExamAnswers", JSON.stringify(answers));
+      return answers;
+    }
+
+    function submitExamAnswers() {
+      const answers = saveExamAnswers();
+      $$("[data-exam-review]").forEach(review => {
+        const index = Number(review.dataset.examReview);
+        const words = answers[index] ? answers[index].split(/\s+/).length : 0;
+        review.classList.add("show");
+        review.querySelector("[data-exam-meta]").textContent = words
+          ? `Your answer has about ${words} words. Self-mark it: definition, example, limitation, and one missing point.`
+          : "No answer written yet. Add a short attempt, then submit again.";
+      });
+      const examTask = document.querySelector('[data-task="exam1"]');
+      if (examTask) {
+        examTask.checked = true;
+        updateProgress();
+      }
+      showToast("Submitted. Compare your answers with the key points.");
+    }
+
+    function clearExamAnswers() {
+      localStorage.removeItem("mlFinalsExamAnswers");
+      $$("[data-exam-answer]").forEach(input => input.value = "");
+      $$("[data-exam-review]").forEach(review => review.classList.remove("show"));
+      showToast("Exam draft cleared.");
     }
 
     function renderTimer() {
@@ -1187,8 +1546,14 @@ t = 36.416 - 0.0133 x</code>
     $("#nextQuestion").addEventListener("click", nextQuestion);
     $("#restartQuiz").addEventListener("click", restartQuiz);
     $("#calcBtn").addEventListener("click", calculatePrediction);
+    $("#activationBtn").addEventListener("click", calculateActivations);
     $("#timerStart").addEventListener("click", startTimer);
     $("#timerReset").addEventListener("click", resetTimer);
+    $("#submitExam").addEventListener("click", submitExamAnswers);
+    $("#clearExam").addEventListener("click", clearExamAnswers);
+    document.addEventListener("input", event => {
+      if (event.target.matches("[data-exam-answer]")) saveExamAnswers();
+    });
     $("#shuffleBtn").addEventListener("click", () => {
       randomFocus();
       restartQuiz();
@@ -1211,6 +1576,7 @@ t = 36.416 - 0.0133 x</code>
     renderCard();
     restartQuiz();
     calculatePrediction();
+    calculateActivations();
     renderExam();
     renderTimer();
     loadProgress();

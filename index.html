@@ -1,0 +1,1219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Machine Learning Finals Studio</title>
+  <style>
+    :root {
+      --bg: #f7f5ee;
+      --ink: #161719;
+      --muted: #62615c;
+      --line: #d8d0c2;
+      --paper: #fffdf7;
+      --panel: #ebe5d7;
+      --green: #176b52;
+      --mint: #d7eadf;
+      --red: #a7352f;
+      --red-soft: #f1d8d4;
+      --blue: #224f8f;
+      --blue-soft: #d8e2f3;
+      --yellow: #f2c84b;
+      --shadow: 0 18px 46px rgba(28, 29, 31, .12);
+      --radius: 8px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 38px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+    button:hover { transform: translateY(-1px); border-color: #9e9587; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(34, 79, 143, .25);
+      outline-offset: 2px;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 22px 18px;
+      border-right: 1px solid var(--line);
+      background: #211f1a;
+      color: #fff9e9;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .brand {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
+      background:
+        linear-gradient(135deg, rgba(242, 200, 75, .95), rgba(23, 107, 82, .96)),
+        #f2c84b;
+      display: grid;
+      place-items: center;
+      color: #151515;
+      font-weight: 900;
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+    }
+    .brand h1 {
+      font-size: 1.02rem;
+      line-height: 1.08;
+      margin: 0;
+      letter-spacing: 0;
+    }
+    .brand p {
+      margin: 3px 0 0;
+      color: #c9c0ad;
+      font-size: .82rem;
+    }
+
+    nav {
+      display: grid;
+      gap: 7px;
+    }
+    nav button {
+      width: 100%;
+      background: transparent;
+      color: #f9f2df;
+      border-color: rgba(255,255,255,.16);
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+    }
+    nav button.active {
+      background: #fff6dc;
+      color: #211f1a;
+      border-color: #fff6dc;
+    }
+    .nav-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 99px;
+      background: var(--yellow);
+      flex: 0 0 auto;
+    }
+    nav button:nth-child(2) .nav-dot { background: #74b99b; }
+    nav button:nth-child(3) .nav-dot { background: #7da2d7; }
+    nav button:nth-child(4) .nav-dot { background: #db756c; }
+    nav button:nth-child(5) .nav-dot { background: #f0cb67; }
+    nav button:nth-child(6) .nav-dot { background: #d6b7df; }
+
+    .side-panel {
+      margin-top: auto;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: rgba(255,255,255,.06);
+    }
+    .side-panel strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: .86rem;
+    }
+    .meter {
+      height: 10px;
+      border-radius: 99px;
+      background: rgba(255,255,255,.15);
+      overflow: hidden;
+    }
+    .meter span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f2c84b, #73bd94);
+    }
+    .side-panel p {
+      color: #d8cfbd;
+      font-size: .78rem;
+      margin: 9px 0 0;
+      line-height: 1.45;
+    }
+
+    main {
+      padding: 24px clamp(18px, 4vw, 46px) 48px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 56px;
+    }
+    .topbar h2 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3.8vw, 3.5rem);
+      line-height: .96;
+      max-width: 760px;
+      letter-spacing: 0;
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .primary {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+    .danger {
+      background: var(--red-soft);
+      color: #6d211c;
+      border-color: #d5aaa5;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(310px, .7fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+    .hero-copy {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 26px 0;
+      display: grid;
+      align-content: center;
+      gap: 18px;
+    }
+    .hero-copy p {
+      margin: 0;
+      max-width: 700px;
+      color: #3e3d39;
+      font-size: clamp(1rem, 1.8vw, 1.22rem);
+      line-height: 1.55;
+    }
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 720px;
+    }
+    .stat {
+      border-left: 4px solid var(--green);
+      padding: 9px 10px;
+      background: rgba(255,255,255,.38);
+    }
+    .stat:nth-child(2) { border-color: var(--blue); }
+    .stat:nth-child(3) { border-color: var(--red); }
+    .stat b {
+      display: block;
+      font-size: 1.28rem;
+      line-height: 1;
+    }
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .focus-board {
+      min-height: 320px;
+      background:
+        linear-gradient(145deg, rgba(255,253,247,.92), rgba(235,229,215,.82)),
+        var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+    }
+    .focus-board h3 {
+      margin: 0;
+      font-size: 1.04rem;
+    }
+    .focus-card {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      padding: 16px;
+      display: grid;
+      align-content: center;
+      gap: 12px;
+    }
+    .focus-card .label {
+      color: var(--green);
+      text-transform: uppercase;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+    .focus-card p {
+      margin: 0;
+      color: #30302d;
+      line-height: 1.48;
+    }
+
+    .section {
+      display: none;
+      animation: rise .24s ease both;
+    }
+    .section.active { display: grid; gap: 18px; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+    }
+    .section-head h3 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.3vw, 2.2rem);
+      line-height: 1;
+    }
+    .section-head p {
+      margin: 0;
+      max-width: 520px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(170px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .topic-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      padding: 15px;
+      min-height: 188px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 9px;
+    }
+    .topic-card h4 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.16;
+    }
+    .topic-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.44;
+    }
+    .topic-card ul {
+      margin: 0;
+      padding-left: 17px;
+      color: #35332f;
+      font-size: .84rem;
+      line-height: 1.42;
+    }
+    .topic-card small {
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(310px, .75fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(34, 32, 28, .06);
+    }
+    .panel h4 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+    }
+
+    .flashcard {
+      min-height: 278px;
+      display: grid;
+      align-content: center;
+      gap: 18px;
+      border: 1px solid #cfc6b7;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(150deg, rgba(216,226,243,.72), rgba(255,253,247,.9) 42%, rgba(215,234,223,.65)),
+        var(--paper);
+      padding: 28px;
+      cursor: pointer;
+    }
+    .flashcard .topic-name {
+      color: var(--blue);
+      font-weight: 800;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .flashcard .card-text {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.4vw, 2rem);
+      line-height: 1.12;
+      font-weight: 800;
+    }
+    .flash-controls, .quiz-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .quiz-card {
+      display: grid;
+      gap: 14px;
+    }
+    .quiz-question {
+      font-size: clamp(1.15rem, 2vw, 1.55rem);
+      line-height: 1.22;
+      font-weight: 800;
+      margin: 0;
+    }
+    .answers {
+      display: grid;
+      gap: 8px;
+    }
+    .answer {
+      text-align: left;
+      min-height: 48px;
+      background: #fffaf0;
+    }
+    .answer.correct {
+      background: var(--mint);
+      border-color: #8bbca2;
+    }
+    .answer.wrong {
+      background: var(--red-soft);
+      border-color: #cf918b;
+    }
+    .feedback {
+      min-height: 48px;
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+      color: #403f3a;
+      line-height: 1.45;
+      background: rgba(255,253,247,.55);
+    }
+
+    .formula-lab {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .formula-box {
+      background: #1f211f;
+      color: #fff8e8;
+      border-radius: var(--radius);
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+    .formula-box code {
+      font-family: var(--mono);
+      color: #f2c84b;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .lab-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 700;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      min-height: 40px;
+      padding: 9px 10px;
+      background: #fffdf7;
+      color: var(--ink);
+    }
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+    .lab-result {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: var(--panel);
+      display: grid;
+      align-content: center;
+      gap: 8px;
+    }
+    .lab-result strong {
+      display: block;
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      line-height: 1;
+    }
+    .lab-result span {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .prompt-list {
+      display: grid;
+      gap: 10px;
+    }
+    .prompt {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: start;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fffaf0;
+    }
+    .prompt input {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      margin-top: 2px;
+      accent-color: var(--green);
+    }
+    .prompt b {
+      display: block;
+      margin-bottom: 4px;
+    }
+    .prompt span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.42;
+      font-size: .9rem;
+    }
+    .tag {
+      font-size: .72rem;
+      font-weight: 800;
+      color: var(--blue);
+      background: var(--blue-soft);
+      border-radius: 999px;
+      padding: 5px 8px;
+      white-space: nowrap;
+    }
+
+    .exam-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 18px;
+      align-items: start;
+    }
+    .timer {
+      font-family: var(--mono);
+      font-size: 2.3rem;
+      color: var(--red);
+      margin: 4px 0 12px;
+    }
+    .exam-question {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 0;
+    }
+    .exam-question:first-child { padding-top: 0; }
+    .exam-question p {
+      margin: 0 0 9px;
+      line-height: 1.42;
+      font-weight: 750;
+    }
+    .exam-question textarea { min-height: 74px; }
+
+    .memory-stack {
+      display: grid;
+      gap: 10px;
+    }
+    .memory-item {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .memory-item b {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      color: #fff;
+      background: var(--green);
+    }
+    .memory-item:nth-child(2) b { background: var(--blue); }
+    .memory-item:nth-child(3) b { background: var(--red); }
+    .memory-item:nth-child(4) b { background: #7a5b16; }
+    .memory-item span {
+      color: var(--muted);
+      line-height: 1.42;
+      font-size: .9rem;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      max-width: 340px;
+      padding: 12px 14px;
+      border-radius: 6px;
+      background: #211f1a;
+      color: #fff8e8;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(14px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 5;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .app-shell { grid-template-columns: 1fr; }
+      aside {
+        position: static;
+        height: auto;
+        padding: 14px;
+      }
+      nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      nav button { justify-content: center; text-align: center; }
+      .side-panel { margin-top: 0; }
+      .hero-grid, .split, .formula-lab, .exam-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 18px 14px 36px; }
+      .topbar, .section-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .quick-stats, .lab-controls {
+        grid-template-columns: 1fr;
+      }
+      nav {
+        display: flex;
+        overflow-x: auto;
+      }
+      nav button {
+        min-width: 150px;
+      }
+      .prompt {
+        grid-template-columns: auto 1fr;
+      }
+      .prompt .tag {
+        grid-column: 2;
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside>
+      <div class="brand">
+        <div class="brand-mark">ML</div>
+        <div>
+          <h1>Machine Learning Finals Studio</h1>
+          <p>Built from your lecture notes</p>
+        </div>
+      </div>
+
+      <nav aria-label="Study sections">
+        <button class="active" data-section="dashboard"><span class="nav-dot"></span>Dashboard</button>
+        <button data-section="map"><span class="nav-dot"></span>Topic Map</button>
+        <button data-section="flashcards"><span class="nav-dot"></span>Flashcards</button>
+        <button data-section="quiz"><span class="nav-dot"></span>Quiz Drill</button>
+        <button data-section="formula"><span class="nav-dot"></span>Formula Lab</button>
+        <button data-section="exam"><span class="nav-dot"></span>Exam Mode</button>
+      </nav>
+
+      <div class="side-panel">
+        <strong>Study progress</strong>
+        <div class="meter" aria-label="Study progress"><span id="progressBar"></span></div>
+        <p id="progressText">0 of 10 practice tasks checked off.</p>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <h2>Revise the finals material by doing, not rereading.</h2>
+        <div class="topbar-actions">
+          <button id="shuffleBtn">Shuffle Drill</button>
+          <button id="resetBtn" class="danger">Reset Progress</button>
+        </div>
+      </header>
+
+      <section id="dashboard" class="section active">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <p>This platform compresses the notes into a finals routine: understand the concept map, flip active-recall cards, answer scored questions, practise the regression formulas, then run short exam prompts.</p>
+            <div class="quick-stats">
+              <div class="stat"><b>5</b><span>lecture blocks</span></div>
+              <div class="stat"><b>30</b><span>targeted cards</span></div>
+              <div class="stat"><b>24</b><span>quiz questions</span></div>
+            </div>
+          </div>
+
+          <div class="focus-board">
+            <h3>Next best move</h3>
+            <div class="focus-card">
+              <span class="label" id="focusTopic">Linear models</span>
+              <p id="focusText">Explain why minimising training loss alone can produce overfitting, then connect that idea to cross-validation.</p>
+            </div>
+            <button class="primary" data-jump="quiz">Start a scored drill</button>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h3>Finals Flow</h3>
+          <p>Work left to right: map, recall, test, calculate, then write. The app remembers completed practice tasks in this browser.</p>
+        </div>
+
+        <div class="memory-stack">
+          <div class="memory-item"><b>1</b><span><strong>Classify the task.</strong><br>Supervised means labels; unsupervised means structure without labels; reinforcement means actions for rewards.</span></div>
+          <div class="memory-item"><b>2</b><span><strong>Model the line.</strong><br>Linear regression uses parameters w0 and w1, loss such as MSE, and matrix form for compact computation.</span></div>
+          <div class="memory-item"><b>3</b><span><strong>Model uncertainty.</strong><br>Noise becomes a random variable, which leads to probability, conditioning, densities, and likelihood.</span></div>
+          <div class="memory-item"><b>4</b><span><strong>Train networks carefully.</strong><br>Forward pass, error, backpropagation, gradient descent, validation, and regularisation all matter.</span></div>
+        </div>
+      </section>
+
+      <section id="map" class="section">
+        <div class="section-head">
+          <h3>Topic Map</h3>
+          <p>The notes are organised into five exam-sized blocks. Each card gives the core idea and the questions you should be able to answer from memory.</p>
+        </div>
+        <div class="topic-grid" id="topicGrid"></div>
+      </section>
+
+      <section id="flashcards" class="section">
+        <div class="section-head">
+          <h3>Flashcards</h3>
+          <p>Click the card to flip. Use Again or Got it to move through the deck and track what still feels shaky.</p>
+        </div>
+        <div class="split">
+          <div class="panel">
+            <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flip flashcard">
+              <span class="topic-name" id="cardTopic">Topic</span>
+              <p class="card-text" id="cardText">Question</p>
+            </div>
+            <div class="flash-controls">
+              <button id="againBtn">Again</button>
+              <button id="flipBtn">Flip</button>
+              <button id="gotBtn" class="primary">Got it</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Recall Strategy</h4>
+            <div class="prompt-list">
+              <label class="prompt"><input type="checkbox" data-task="card1"><span><b>Say it before you flip</b>Write or speak the answer first, then compare with the card back.</span><span class="tag">Recall</span></label>
+              <label class="prompt"><input type="checkbox" data-task="card2"><span><b>Connect two topics</b>Link each neural network card back to loss, overfitting, or validation.</span><span class="tag">Link</span></label>
+              <label class="prompt"><input type="checkbox" data-task="card3"><span><b>Mark weak cards</b>Use Again when the answer is vague, even if it feels familiar.</span><span class="tag">Honesty</span></label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="quiz" class="section">
+        <div class="section-head">
+          <h3>Quiz Drill</h3>
+          <p>Short questions target definitions, contrasts, and common exam traps from the notes.</p>
+        </div>
+        <div class="split">
+          <div class="panel quiz-card">
+            <p class="quiz-question" id="quizQuestion"></p>
+            <div class="answers" id="answers"></div>
+            <div class="feedback" id="feedback">Choose an answer to see the explanation.</div>
+            <div class="quiz-controls">
+              <button id="nextQuestion" class="primary">Next Question</button>
+              <button id="restartQuiz">Restart Score</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Score</h4>
+            <div class="timer" id="scoreText">0 / 0</div>
+            <div class="prompt-list">
+              <label class="prompt"><input type="checkbox" data-task="quiz1"><span><b>Finish 10 questions</b>Aim for explanations, not just the letter choice.</span><span class="tag">Drill</span></label>
+              <label class="prompt"><input type="checkbox" data-task="quiz2"><span><b>Review every miss</b>Turn missed explanations into one-line notes.</span><span class="tag">Repair</span></label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="formula" class="section">
+        <div class="section-head">
+          <h3>Formula Lab</h3>
+          <p>Practise the linear model and the probability language that appears in the notes.</p>
+        </div>
+        <div class="formula-lab">
+          <div class="formula-box">
+            <h4>Linear prediction</h4>
+            <code>t = w0 + w1 x
+For the Olympic example:
+t = 36.416 - 0.0133 x</code>
+            <div class="lab-controls">
+              <label>w0 <input id="w0" type="number" step="0.001" value="36.416"></label>
+              <label>w1 <input id="w1" type="number" step="0.0001" value="-0.0133"></label>
+              <label>x <input id="xValue" type="number" step="1" value="2012"></label>
+            </div>
+            <button id="calcBtn" class="primary">Calculate prediction</button>
+          </div>
+          <div class="lab-result">
+            <strong id="prediction">9.59s</strong>
+            <span id="predictionText">Substitute x = 2012 into the fitted linear model. This prediction depends on the assumption that the trend remains linear.</span>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="panel">
+            <h4>Formula Notes</h4>
+            <div class="memory-stack">
+              <div class="memory-item"><b>L</b><span><strong>MSE</strong><br>Average squared error across training points gives one loss value to minimise.</span></div>
+              <div class="memory-item"><b>W</b><span><strong>Matrix solution</strong><br>The notes use w = inv(X.T @ X) @ X.T @ t for linear regression parameters.</span></div>
+              <div class="memory-item"><b>P</b><span><strong>Likelihood</strong><br>Evaluate how likely the observed data is under model parameters, then choose parameters that maximise it.</span></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Practice Checks</h4>
+            <div class="prompt-list">
+              <label class="prompt"><input type="checkbox" data-task="formula1"><span><b>Explain each symbol</b>Define x, t, w0, w1, X, and w without looking.</span><span class="tag">Symbols</span></label>
+              <label class="prompt"><input type="checkbox" data-task="formula2"><span><b>Spot the assumption</b>State why the Olympic model cannot be trusted indefinitely.</span><span class="tag">Limits</span></label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="exam" class="section">
+        <div class="section-head">
+          <h3>Exam Mode</h3>
+          <p>Answer in short paragraphs. The timer is intentionally small: practise crisp explanations.</p>
+        </div>
+        <div class="exam-layout">
+          <div class="panel" id="examQuestions"></div>
+          <div class="panel">
+            <h4>Timed round</h4>
+            <div class="timer" id="timer">08:00</div>
+            <div class="quiz-controls">
+              <button id="timerStart" class="primary">Start</button>
+              <button id="timerReset">Reset</button>
+            </div>
+            <div class="prompt-list" style="margin-top: 14px;">
+              <label class="prompt"><input type="checkbox" data-task="exam1"><span><b>Write one timed round</b>Keep each answer compact and technical.</span><span class="tag">Exam</span></label>
+              <label class="prompt"><input type="checkbox" data-task="exam2"><span><b>Self-mark</b>Underline the definition, example, and limitation in each answer.</span><span class="tag">Marking</span></label>
+              <label class="prompt"><input type="checkbox" data-task="exam3"><span><b>Repair weak answer</b>Rewrite the lowest-confidence answer from memory.</span><span class="tag">Fix</span></label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const topics = [
+      {
+        name: "ML Foundations",
+        pages: "Lectures 1",
+        summary: "Machine learning as data-driven algorithms for prediction, grouping, and intelligent behaviour.",
+        checks: ["Supervised vs unsupervised vs reinforcement", "Classification, regression, clustering, projection", "Power and breadth hypotheses"]
+      },
+      {
+        name: "Linear Models",
+        pages: "Lecture 2",
+        summary: "Use assumptions and parameters to fit a line, evaluate loss, and make predictions.",
+        checks: ["Attributes and targets", "MSE and optimisation", "Olympic 100m prediction"]
+      },
+      {
+        name: "Vector and Matrix Form",
+        pages: "Lecture 2",
+        summary: "Represent parameters as vectors and training examples as a matrix to compute predictions compactly.",
+        checks: ["w vector", "X matrix", "w = inv(X.T X) X.T t"]
+      },
+      {
+        name: "Probability and Likelihood",
+        pages: "Lecture 3",
+        summary: "Model errors as random variables and use probabilities, densities, conditioning, and likelihood.",
+        checks: ["Discrete vs continuous RVs", "Independence and conditioning", "Likelihood maximisation"]
+      },
+      {
+        name: "Neural and Deep Learning",
+        pages: "Lectures 4-5",
+        summary: "Perceptrons, feed-forward networks, backpropagation, CNNs, RNNs, and LSTMs.",
+        checks: ["Activation functions", "Overfitting and validation", "CNN, RNN, LSTM roles"]
+      }
+    ];
+
+    const cards = [
+      ["ML Foundations", "What makes supervised learning supervised?", "It learns from labelled examples: each training input has a corresponding target or class label."],
+      ["ML Foundations", "Regression or classification: predicting a stock price?", "Regression, because the target is continuous."],
+      ["ML Foundations", "What is clustering?", "An unsupervised task that finds groups of similar objects without labelled targets."],
+      ["ML Foundations", "What is projection used for?", "Reducing variables or dimensions, often to visualise complex data."],
+      ["ML Foundations", "What is reinforcement learning trying to maximise?", "Reward from actions taken in an environment."],
+      ["Linear Models", "In the Olympic example, what is x and what is t?", "x is the Olympic year, and t is the winning time target."],
+      ["Linear Models", "What are w0 and w1?", "They are parameters of the linear model: intercept and slope."],
+      ["Linear Models", "What does MSE do?", "It averages squared errors across training examples to give one loss value."],
+      ["Linear Models", "Why can the Olympic linear model be wrong?", "The relationship may not be linear, cannot decrease forever, and may not continue into the future."],
+      ["Vector and Matrix Form", "Why put parameters into a vector?", "It makes models and computations compact, especially for more attributes or polynomial terms."],
+      ["Vector and Matrix Form", "What is X in the matrix model?", "A matrix that stacks all training input vectors or feature rows."],
+      ["Vector and Matrix Form", "What does t_new = X_new w compute?", "The prediction for a new input represented in matrix/vector form."],
+      ["Probability and Likelihood", "Why model errors?", "Errors affect confidence and should not be ignored; they represent unpredictable variation."],
+      ["Probability and Likelihood", "Discrete or continuous: rolling a die?", "Discrete, because the outcomes are countable."],
+      ["Probability and Likelihood", "Discrete or continuous: Olympic winning time?", "Continuous, because values lie on a continuum."],
+      ["Probability and Likelihood", "Are densities probabilities?", "No. Densities describe relative likelihood; probabilities for continuous variables come from areas over ranges."],
+      ["Probability and Likelihood", "What does independence mean?", "The outcome of one random variable does not depend on the other."],
+      ["Probability and Likelihood", "What does conditioning let us express?", "Probabilities or densities given known information, such as p(t_n | x_n, w)."],
+      ["Neural Networks", "What does a perceptron calculate?", "A weighted sum of inputs plus a bias, then an activation for binary classification."],
+      ["Neural Networks", "When can a perceptron fail to converge?", "When the classification problem is not linearly separable."],
+      ["Neural Networks", "Name three activation functions in the notes.", "Sigmoid, tanh, and ReLU."],
+      ["Neural Networks", "What happens in forward propagation?", "Inputs pass through the network to produce a predicted output."],
+      ["Neural Networks", "What is backpropagation for?", "Propagating errors backwards so weights can be updated to reduce loss."],
+      ["Neural Networks", "Why use cross-validation?", "To choose hyperparameters and evaluate generalisation without overfitting to one split."],
+      ["Deep Learning", "For binary classification, how many output nodes are noted?", "A single output node."],
+      ["Deep Learning", "For K-class classification, how many output nodes are noted?", "K output nodes."],
+      ["Deep Learning", "What does momentum use?", "Previous gradients to move optimisation more quickly."],
+      ["Deep Learning", "What does a CNN convolution layer produce?", "Activation maps from filters sliding over image-like inputs."],
+      ["Deep Learning", "Why use pooling?", "To reduce spatial size, parameters, computation, and overfitting risk."],
+      ["Deep Learning", "What are RNNs suited for?", "Sequence data because they include temporal loops or memory."],
+      ["Deep Learning", "What is the LSTM forget gate deciding?", "Whether to keep or discard information from the previous cell state."]
+    ];
+
+    const questions = [
+      { q: "Which task learns a continuous function from examples?", a: ["Classification", "Regression", "Clustering", "Projection"], c: 1, e: "Regression predicts continuous targets, such as stock prices or Olympic winning time." },
+      { q: "Which learning type uses unlabelled data to find groups?", a: ["Supervised classification", "Unsupervised clustering", "Reinforcement learning", "K-class classification"], c: 1, e: "Clustering is unsupervised because it finds groups without target labels." },
+      { q: "In the linear model t = w0 + w1x, w0 and w1 are:", a: ["Targets", "Parameters", "Random variables", "Activation functions"], c: 1, e: "They control the fitted line and are learned from training data." },
+      { q: "Mean square error is useful because it:", a: ["Turns all data into labels", "Gives one numerical loss for the model", "Guarantees no overfitting", "Removes all noise"], c: 1, e: "MSE averages the squared losses across training points." },
+      { q: "A high-order model that fits training data perfectly can still be bad because:", a: ["Matrices cannot represent it", "It may overfit noise", "It becomes supervised", "It has no parameters"], c: 1, e: "The notes stress the trade-off between low training loss and generalisation." },
+      { q: "Which notation best matches a matrix of stacked training inputs?", a: ["x", "t", "X", "b"], c: 2, e: "Matrices are uppercase in the notes; X stacks the input rows." },
+      { q: "What does t_new = X_new w produce?", a: ["A probability density", "A prediction for a new input", "A random split", "A hidden layer"], c: 1, e: "It multiplies the new input representation by the learned parameter vector." },
+      { q: "Why are continuous densities not the same as probabilities?", a: ["They only apply to labels", "Probabilities require areas over ranges", "They are always zero", "They are only used in CNNs"], c: 1, e: "For continuous variables, probabilities are computed by area under the density curve." },
+      { q: "If coin toss X does not depend on die roll Y, X and Y are:", a: ["Conditioned", "Dependent", "Independent", "Overfitted"], c: 2, e: "Independence means one outcome does not depend on the other." },
+      { q: "Likelihood is used to:", a: ["Count hidden layers", "Evaluate observed data under model parameters", "Make classes unlabelled", "Choose activation maps"], c: 1, e: "The notes connect likelihood to choosing parameters that make the observed data likely." },
+      { q: "A perceptron is mainly described as:", a: ["Binary classification with a linear predictor", "A pooling operation", "A matrix inverse", "A K-fold splitter"], c: 0, e: "The perceptron calculates a weighted sum and applies an activation." },
+      { q: "A perceptron fails when the data is:", a: ["Linearly separable", "Not linearly separable", "Numerical", "Labelled"], c: 1, e: "The notes state perceptrons converge for linear classification but fail otherwise." },
+      { q: "Which activation outputs values from 0 to infinity?", a: ["Tanh", "Sigmoid", "ReLU", "Threshold only"], c: 2, e: "ReLU outputs 0 for negative values and grows upward for positive values." },
+      { q: "Backpropagation updates weights by:", a: ["Reducing hidden layers only", "Propagating errors backwards", "Removing labels", "Increasing the learning rate forever"], c: 1, e: "Errors move backward through the network so weights can reduce cost." },
+      { q: "Cross-validation helps choose:", a: ["Hyperparameters", "Only raw labels", "The PDF page count", "The target variable name"], c: 0, e: "The notes list hidden units, learning rate, and batch size as examples." },
+      { q: "For binary classification in the deep learning notes, the output layer uses:", a: ["No nodes", "One node", "K nodes", "A pooling layer"], c: 1, e: "Binary classification maps to a single output node." },
+      { q: "For K-class classification, the output layer uses:", a: ["One node", "Two fixed nodes", "K nodes", "A recurrent loop"], c: 2, e: "The notes describe K nodes and a K-dimensional output distribution." },
+      { q: "Momentum in SGD uses:", a: ["Previous gradients", "Only test data", "Pooling windows", "Random labels"], c: 0, e: "Momentum incorporates previous gradients to push optimisation faster." },
+      { q: "A CNN convolution layer is especially connected with:", a: ["Sliding filters and activation maps", "Coin tosses", "K-fold scoring", "The Olympic year only"], c: 0, e: "The notes describe filters sliding across image dimensions to create activation maps." },
+      { q: "Pooling layers reduce:", a: ["The number of classes", "Spatial size and computation", "All labels", "The need for training"], c: 1, e: "Pooling reduces width/height, parameters, computation, and overfitting risk." },
+      { q: "RNNs are useful because they:", a: ["Learn from sequences", "Only handle images", "Cannot use activation functions", "Remove memory"], c: 0, e: "The notes describe RNNs as sequence models with a temporal loop." },
+      { q: "LSTMs are a kind of:", a: ["Random variable", "RNN", "Linear matrix", "Pooling layer"], c: 1, e: "The notes call LSTM a unique kind of RNN." },
+      { q: "The LSTM forget gate decides whether to:", a: ["Keep or discard information", "Invert X.T X", "Turn classes into labels", "Create a convolution kernel"], c: 0, e: "The forget gate controls what previous cell-state information is retained." },
+      { q: "The safest definition of noise in these notes is:", a: ["Only audio corruption", "Errors or random events that cannot be predicted", "Always removable by ReLU", "A class label"], c: 1, e: "The notes quote noise as errors in data or random events that cannot be predicted." }
+    ];
+
+    const examPrompts = [
+      "Compare classification, regression, clustering, and projection. Give one example for each.",
+      "Explain the Olympic linear regression model, including attributes, targets, parameters, loss, and one limitation.",
+      "Why does overfitting happen, and how do train/test splits or K-fold cross-validation help?",
+      "Explain the difference between a discrete random variable, a continuous random variable, and a density.",
+      "Describe the training loop for an artificial neural network from initial weights to backpropagation.",
+      "Compare CNNs, RNNs, and LSTMs by the type of data or structure each is designed to handle."
+    ];
+
+    const focusItems = [
+      ["Linear models", "Explain why minimising training loss alone can produce overfitting, then connect that idea to cross-validation."],
+      ["Probability", "Say the difference between probability and density without using the phrase 'kind of the same'."],
+      ["Neural networks", "Walk through forward propagation, error computation, backpropagation, and gradient descent."],
+      ["Deep learning", "Compare CNN, RNN, and LSTM using one sentence each."]
+    ];
+
+    let cardIndex = 0;
+    let cardFlipped = false;
+    let quizOrder = [...questions.keys()];
+    let quizIndex = 0;
+    let answered = false;
+    let correct = 0;
+    let attempted = 0;
+    let timerSeconds = 480;
+    let timerId = null;
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+    function showToast(message) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timeout);
+      showToast.timeout = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function setSection(id) {
+      $$(".section").forEach(section => section.classList.toggle("active", section.id === id));
+      $$("nav button").forEach(button => button.classList.toggle("active", button.dataset.section === id));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderTopics() {
+      $("#topicGrid").innerHTML = topics.map(topic => `
+        <article class="topic-card">
+          <small>${topic.pages}</small>
+          <h4>${topic.name}</h4>
+          <p>${topic.summary}</p>
+          <ul>${topic.checks.map(item => `<li>${item}</li>`).join("")}</ul>
+        </article>
+      `).join("");
+    }
+
+    function renderCard() {
+      const [topic, front, back] = cards[cardIndex];
+      $("#cardTopic").textContent = topic;
+      $("#cardText").textContent = cardFlipped ? back : front;
+    }
+
+    function nextCard() {
+      cardIndex = (cardIndex + 1) % cards.length;
+      cardFlipped = false;
+      renderCard();
+    }
+
+    function renderQuestion() {
+      answered = false;
+      const question = questions[quizOrder[quizIndex]];
+      $("#quizQuestion").textContent = question.q;
+      $("#answers").innerHTML = question.a.map((answer, index) => `
+        <button class="answer" data-answer="${index}">${answer}</button>
+      `).join("");
+      $("#feedback").textContent = "Choose an answer to see the explanation.";
+      $("#scoreText").textContent = `${correct} / ${attempted}`;
+    }
+
+    function answerQuestion(choice) {
+      if (answered) return;
+      answered = true;
+      const question = questions[quizOrder[quizIndex]];
+      attempted += 1;
+      const isCorrect = choice === question.c;
+      if (isCorrect) correct += 1;
+      $$(".answer").forEach(button => {
+        const value = Number(button.dataset.answer);
+        if (value === question.c) button.classList.add("correct");
+        if (value === choice && !isCorrect) button.classList.add("wrong");
+      });
+      $("#feedback").textContent = `${isCorrect ? "Correct." : "Not quite."} ${question.e}`;
+      $("#scoreText").textContent = `${correct} / ${attempted}`;
+    }
+
+    function nextQuestion() {
+      quizIndex = (quizIndex + 1) % quizOrder.length;
+      renderQuestion();
+    }
+
+    function restartQuiz() {
+      correct = 0;
+      attempted = 0;
+      quizIndex = 0;
+      quizOrder = shuffle([...questions.keys()]);
+      renderQuestion();
+    }
+
+    function calculatePrediction() {
+      const w0 = Number($("#w0").value);
+      const w1 = Number($("#w1").value);
+      const x = Number($("#xValue").value);
+      const result = w0 + (w1 * x);
+      $("#prediction").textContent = `${result.toFixed(4)}s`;
+      $("#predictionText").textContent = `Computed as ${w0} + (${w1} x ${x}). Interpret it only inside the model assumptions.`;
+    }
+
+    function updateProgress() {
+      const checked = $$("[data-task]:checked").map(input => input.dataset.task);
+      localStorage.setItem("mlFinalsTasks", JSON.stringify(checked));
+      const total = $$("[data-task]").length;
+      const count = checked.length;
+      const pct = total ? Math.round((count / total) * 100) : 0;
+      $("#progressBar").style.width = `${pct}%`;
+      $("#progressText").textContent = `${count} of ${total} practice tasks checked off.`;
+    }
+
+    function loadProgress() {
+      const saved = JSON.parse(localStorage.getItem("mlFinalsTasks") || "[]");
+      $$("[data-task]").forEach(input => {
+        input.checked = saved.includes(input.dataset.task);
+      });
+      updateProgress();
+    }
+
+    function renderExam() {
+      $("#examQuestions").innerHTML = examPrompts.map((prompt, index) => `
+        <div class="exam-question">
+          <p>${index + 1}. ${prompt}</p>
+          <textarea aria-label="Answer for question ${index + 1}" placeholder="Write a compact exam answer..."></textarea>
+        </div>
+      `).join("");
+    }
+
+    function renderTimer() {
+      const minutes = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+      const seconds = String(timerSeconds % 60).padStart(2, "0");
+      $("#timer").textContent = `${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      if (timerId) return;
+      timerId = setInterval(() => {
+        timerSeconds -= 1;
+        renderTimer();
+        if (timerSeconds <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          showToast("Time. Mark the answer you would improve first.");
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(timerId);
+      timerId = null;
+      timerSeconds = 480;
+      renderTimer();
+    }
+
+    function randomFocus() {
+      const [topic, text] = focusItems[Math.floor(Math.random() * focusItems.length)];
+      $("#focusTopic").textContent = topic;
+      $("#focusText").textContent = text;
+    }
+
+    document.addEventListener("click", event => {
+      const navButton = event.target.closest("nav button");
+      if (navButton) setSection(navButton.dataset.section);
+
+      const jumpButton = event.target.closest("[data-jump]");
+      if (jumpButton) setSection(jumpButton.dataset.jump);
+
+      const answer = event.target.closest("[data-answer]");
+      if (answer) answerQuestion(Number(answer.dataset.answer));
+    });
+
+    $("#flashcard").addEventListener("click", () => {
+      cardFlipped = !cardFlipped;
+      renderCard();
+    });
+    $("#flashcard").addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        cardFlipped = !cardFlipped;
+        renderCard();
+      }
+    });
+    $("#flipBtn").addEventListener("click", () => {
+      cardFlipped = !cardFlipped;
+      renderCard();
+    });
+    $("#againBtn").addEventListener("click", () => {
+      showToast("Kept in rotation.");
+      nextCard();
+    });
+    $("#gotBtn").addEventListener("click", () => {
+      showToast("Nice. Next card loaded.");
+      nextCard();
+    });
+    $("#nextQuestion").addEventListener("click", nextQuestion);
+    $("#restartQuiz").addEventListener("click", restartQuiz);
+    $("#calcBtn").addEventListener("click", calculatePrediction);
+    $("#timerStart").addEventListener("click", startTimer);
+    $("#timerReset").addEventListener("click", resetTimer);
+    $("#shuffleBtn").addEventListener("click", () => {
+      randomFocus();
+      restartQuiz();
+      cardIndex = Math.floor(Math.random() * cards.length);
+      cardFlipped = false;
+      renderCard();
+      showToast("Fresh drill loaded.");
+    });
+    $("#resetBtn").addEventListener("click", () => {
+      localStorage.removeItem("mlFinalsTasks");
+      $$("[data-task]").forEach(input => input.checked = false);
+      updateProgress();
+      showToast("Progress reset.");
+    });
+    document.addEventListener("change", event => {
+      if (event.target.matches("[data-task]")) updateProgress();
+    });
+
+    renderTopics();
+    renderCard();
+    restartQuiz();
+    calculatePrediction();
+    renderExam();
+    renderTimer();
+    loadProgress();
+  </script>
+</body>
+</html>

@@ -334,6 +334,12 @@
       display: grid;
       grid-template-rows: auto auto 1fr auto;
       gap: 9px;
+      text-align: left;
+      min-width: 0;
+    }
+    .topic-card.active {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 82, .14);
     }
     .topic-card h4 {
       margin: 0;
@@ -356,6 +362,91 @@
     .topic-card small {
       color: var(--blue);
       font-weight: 800;
+    }
+    .mindmap-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: 0 12px 30px rgba(34, 32, 28, .06);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .mindmap-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+    .mindmap-head h4 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+    }
+    .mindmap-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.42;
+      max-width: 560px;
+      font-size: .92rem;
+    }
+    .mindmap-canvas {
+      position: relative;
+      min-height: 520px;
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(215,234,223,.78), transparent 30%),
+        linear-gradient(135deg, rgba(216,226,243,.48), rgba(255,253,247,.9) 48%, rgba(241,216,212,.42));
+      overflow: hidden;
+      border: 1px solid #d6cec0;
+    }
+    .mindmap-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .mindmap-lines line {
+      stroke: rgba(33, 31, 26, .22);
+      stroke-width: 2;
+    }
+    .mind-node {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      transform: translate(-50%, -50%);
+      width: min(190px, 20vw);
+      min-height: 64px;
+      display: grid;
+      align-content: center;
+      gap: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,253,247,.96);
+      padding: 10px;
+      box-shadow: 0 10px 24px rgba(30, 29, 25, .09);
+    }
+    .mind-node.center {
+      width: 210px;
+      min-height: 92px;
+      background: #211f1a;
+      color: #fff8e8;
+      border-color: #211f1a;
+      z-index: 2;
+    }
+    .mind-node b {
+      font-size: .86rem;
+      line-height: 1.12;
+    }
+    .mind-node span {
+      color: var(--muted);
+      font-size: .74rem;
+      line-height: 1.25;
+    }
+    .mind-node.center span {
+      color: #d8cfbd;
     }
 
     .split {
@@ -736,6 +827,19 @@
       .formula-shelf {
         grid-template-columns: repeat(2, minmax(220px, 1fr));
       }
+      .mindmap-canvas {
+        min-height: auto;
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+      }
+      .mindmap-lines { display: none; }
+      .mind-node,
+      .mind-node.center {
+        position: static;
+        transform: none;
+        width: 100%;
+      }
     }
 
     @media (max-width: 640px) {
@@ -840,9 +944,10 @@
       <section id="map" class="section">
         <div class="section-head">
           <h3>Topic Map</h3>
-          <p>The notes are organised into five exam-sized blocks. Each card gives the core idea and the questions you should be able to answer from memory.</p>
+          <p>The notes are organised into five exam-sized blocks. Click a card to open a concept mindmap for that topic.</p>
         </div>
         <div class="topic-grid" id="topicGrid"></div>
+        <div class="mindmap-panel" id="mindmapPanel"></div>
       </section>
 
       <section id="flashcards" class="section">
@@ -1130,31 +1235,102 @@ into non-linear neuron output.</code>
         name: "ML Foundations",
         pages: "Lectures 1",
         summary: "Machine learning as data-driven algorithms for prediction, grouping, and intelligent behaviour.",
-        checks: ["Supervised vs unsupervised vs reinforcement", "Classification, regression, clustering, projection", "Power and breadth hypotheses"]
+        checks: ["Supervised vs unsupervised vs reinforcement", "Classification, regression, clustering, projection", "Power and breadth hypotheses"],
+        mindmap: [
+          ["Power hypothesis", "Complex tasks need world knowledge."],
+          ["Breadth hypothesis", "Fallback to general knowledge in unexpected situations."],
+          ["Data", "Observations of people, objects, images, sounds, and the world."],
+          ["Algorithms", "ML is an expanding set of tuned methods."],
+          ["Supervised learning", "Labelled examples with targets."],
+          ["Unsupervised learning", "Unlabelled data, structure discovery."],
+          ["Reinforcement learning", "Actions in an environment to maximise reward."],
+          ["Classification", "Separate objects into types."],
+          ["Regression", "Learn a continuous function."],
+          ["Clustering", "Find groups of similar objects."],
+          ["Projection", "Reduce dimensions for visualisation."],
+          ["Applications", "Search, HCI, speech, gesture, and bioinformatics."]
+        ]
       },
       {
         name: "Linear Models",
         pages: "Lecture 2",
         summary: "Use assumptions and parameters to fit a line, evaluate loss, and make predictions.",
-        checks: ["Attributes and targets", "MSE and optimisation", "Olympic 100m prediction"]
+        checks: ["Attributes and targets", "MSE and optimisation", "Olympic 100m prediction"],
+        mindmap: [
+          ["Model", "A function that relates x to t."],
+          ["Olympic example", "Predict 2012 winning time from historical years."],
+          ["Assumptions", "Relationship exists, is linear, and continues."],
+          ["Attributes", "Input variables such as Olympic year."],
+          ["Targets", "Response values such as winning time."],
+          ["Parameters", "w0 and w1 determine the line."],
+          ["Training data", "N attribute-target pairs."],
+          ["Prediction", "Substitute new x into the fitted model."],
+          ["Loss", "Numerical measure of prediction error."],
+          ["MSE", "Average squared error across training points."],
+          ["Optimisation", "Search for parameters that minimise loss."],
+          ["Limitations", "Winning time cannot decrease forever."]
+        ]
       },
       {
         name: "Vector and Matrix Form",
         pages: "Lecture 2",
         summary: "Represent parameters as vectors and training examples as a matrix to compute predictions compactly.",
-        checks: ["w vector", "X matrix", "w = inv(X.T X) X.T t"]
+        checks: ["w vector", "X matrix", "w = inv(X.T X) X.T t"],
+        mindmap: [
+          ["Vector w", "Encapsulates model parameters."],
+          ["Input vector x", "Stores one example's features."],
+          ["Linear vector form", "t = w^T x."],
+          ["Polynomial model", "More complex features still fit vector notation."],
+          ["Matrix X", "Stacks all training input rows."],
+          ["Target vector t", "Stores all training targets."],
+          ["Matrix model", "Predictions as Xw."],
+          ["Vector loss", "Loss over all training points at once."],
+          ["Derivative", "Set partial derivatives with respect to w to zero."],
+          ["Normal equation", "w = inv(X.T @ X) @ X.T @ t."],
+          ["New input", "Create X_new for prediction."],
+          ["Python implementation", "NumPy arrays, matrix multiply, inv()."]
+        ]
       },
       {
         name: "Probability and Likelihood",
         pages: "Lecture 3",
         summary: "Model errors as random variables and use probabilities, densities, conditioning, and likelihood.",
-        checks: ["Discrete vs continuous RVs", "Independence and conditioning", "Likelihood maximisation"]
+        checks: ["Discrete vs continuous RVs", "Independence and conditioning", "Likelihood maximisation"],
+        mindmap: [
+          ["Generalisation", "Predictive ability beyond training data."],
+          ["Overfitting", "Low training loss but poor prediction."],
+          ["Noise", "Errors or random events we cannot predict."],
+          ["Additive errors", "t_n = w^T x_n + epsilon_n."],
+          ["Random variable", "Unknown value with known possible outcomes/likelihoods."],
+          ["Discrete RV", "Countable outcomes like coins or dice."],
+          ["Continuous RV", "Uncountable outcomes like winning time or noise."],
+          ["Density p(x)", "Relative likelihood, not probability."],
+          ["Joint probability", "Probability of two RV outcomes together."],
+          ["Independence", "One outcome does not depend on the other."],
+          ["Conditioning", "Probability or density given known information."],
+          ["Likelihood", "Evaluate density at observed data for model parameters."]
+        ]
       },
       {
         name: "Neural and Deep Learning",
         pages: "Lectures 4-5",
         summary: "Perceptrons, feed-forward networks, backpropagation, CNNs, RNNs, and LSTMs.",
-        checks: ["Activation functions", "Overfitting and validation", "CNN, RNN, LSTM roles"]
+        checks: ["Activation functions", "Overfitting and validation", "CNN, RNN, LSTM roles"],
+        mindmap: [
+          ["Artificial neuron", "Weighted input plus bias and activation."],
+          ["Perceptron", "Binary classification with a linear predictor."],
+          ["Decision boundary", "Linear hyperplane for separable data."],
+          ["Feed-forward network", "Input to hidden layers to output."],
+          ["Non-linearities", "Sigmoid, tanh, and ReLU activations."],
+          ["Forward propagation", "Compute predicted output y_hat."],
+          ["Loss", "MSE or cross-entropy."],
+          ["Backpropagation", "Propagate errors backward to update weights."],
+          ["Gradient descent", "Minimise cost J(w)."],
+          ["Overfitting controls", "Complexity, dropout, regularisation, cross-validation."],
+          ["CNN", "Convolution filters, activation maps, pooling."],
+          ["RNN", "Sequence learning with temporal memory h(t)."],
+          ["LSTM", "Forget, input, candidate cell, and output gates."]
+        ]
       }
     ];
 
@@ -1319,14 +1495,54 @@ into non-linear neuron output.</code>
     }
 
     function renderTopics() {
-      $("#topicGrid").innerHTML = topics.map(topic => `
-        <article class="topic-card">
+      $("#topicGrid").innerHTML = topics.map((topic, index) => `
+        <button class="topic-card ${index === 0 ? "active" : ""}" data-topic-index="${index}">
           <small>${topic.pages}</small>
           <h4>${topic.name}</h4>
           <p>${topic.summary}</p>
           <ul>${topic.checks.map(item => `<li>${item}</li>`).join("")}</ul>
-        </article>
+        </button>
       `).join("");
+      renderMindmap(0);
+    }
+
+    function renderMindmap(index) {
+      const topic = topics[index];
+      const nodes = topic.mindmap || [];
+      const center = { x: 50, y: 50 };
+      const positioned = nodes.map((node, nodeIndex) => {
+        const angle = (-90 + (360 / nodes.length) * nodeIndex) * Math.PI / 180;
+        const rx = 36;
+        const ry = 38;
+        return {
+          title: node[0],
+          detail: node[1],
+          x: center.x + Math.cos(angle) * rx,
+          y: center.y + Math.sin(angle) * ry
+        };
+      });
+
+      $("#mindmapPanel").innerHTML = `
+        <div class="mindmap-head">
+          <h4>${escapeHtml(topic.name)} Mindmap</h4>
+          <p>${escapeHtml(topic.summary)}</p>
+        </div>
+        <div class="mindmap-canvas" aria-label="${escapeHtml(topic.name)} concept mindmap">
+          <svg class="mindmap-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            ${positioned.map(node => `<line x1="${center.x}" y1="${center.y}" x2="${node.x.toFixed(2)}" y2="${node.y.toFixed(2)}"></line>`).join("")}
+          </svg>
+          <div class="mind-node center" style="--x:${center.x}%; --y:${center.y}%;">
+            <b>${escapeHtml(topic.name)}</b>
+            <span>${escapeHtml(topic.pages)}</span>
+          </div>
+          ${positioned.map(node => `
+            <div class="mind-node" style="--x:${node.x.toFixed(2)}%; --y:${node.y.toFixed(2)}%;">
+              <b>${escapeHtml(node.title)}</b>
+              <span>${escapeHtml(node.detail)}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
     }
 
     function renderCard() {
@@ -1515,6 +1731,13 @@ into non-linear neuron output.</code>
 
       const jumpButton = event.target.closest("[data-jump]");
       if (jumpButton) setSection(jumpButton.dataset.jump);
+
+      const topicButton = event.target.closest("[data-topic-index]");
+      if (topicButton) {
+        const index = Number(topicButton.dataset.topicIndex);
+        $$(".topic-card").forEach(button => button.classList.toggle("active", button === topicButton));
+        renderMindmap(index);
+      }
 
       const answer = event.target.closest("[data-answer]");
       if (answer) answerQuestion(Number(answer.dataset.answer));

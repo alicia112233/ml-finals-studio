@@ -636,6 +636,43 @@
       font-size: .85rem;
       line-height: 1.42;
     }
+    .scenario-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      box-shadow: 0 12px 30px rgba(34, 32, 28, .06);
+    }
+    .scenario-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .scenario-question {
+      margin: 0;
+      font-size: clamp(1.18rem, 2vw, 1.65rem);
+      line-height: 1.18;
+      font-weight: 850;
+    }
+    .scenario-answer {
+      display: none;
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+      background: #fffaf0;
+      padding: 12px;
+      color: #3d3b36;
+      line-height: 1.45;
+    }
+    .scenario-answer.show {
+      display: block;
+    }
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 10px;
+    }
     .activation-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -824,7 +861,7 @@
       .hero-grid, .split, .formula-lab, .exam-layout {
         grid-template-columns: 1fr;
       }
-      .formula-shelf {
+      .formula-shelf, .mini-grid {
         grid-template-columns: repeat(2, minmax(220px, 1fr));
       }
       .mindmap-canvas {
@@ -851,7 +888,7 @@
       .quick-stats, .lab-controls {
         grid-template-columns: 1fr;
       }
-      .formula-shelf, .activation-grid {
+      .formula-shelf, .activation-grid, .mini-grid {
         grid-template-columns: 1fr;
       }
       nav {
@@ -885,6 +922,7 @@
       <nav aria-label="Study sections">
         <button class="active" data-section="dashboard"><span class="nav-dot"></span>Dashboard</button>
         <button data-section="map"><span class="nav-dot"></span>Topic Map</button>
+        <button data-section="tutorials"><span class="nav-dot"></span>Tutorial Drills</button>
         <button data-section="flashcards"><span class="nav-dot"></span>Flashcards</button>
         <button data-section="quiz"><span class="nav-dot"></span>Quiz Drill</button>
         <button data-section="formula"><span class="nav-dot"></span>Formula Lab</button>
@@ -894,7 +932,7 @@
       <div class="side-panel">
         <strong>Study progress</strong>
         <div class="meter" aria-label="Study progress"><span id="progressBar"></span></div>
-        <p id="progressText">0 of 12 practice tasks checked off.</p>
+        <p id="progressText">0 of 17 practice tasks checked off.</p>
       </div>
     </aside>
 
@@ -948,6 +986,36 @@
         </div>
         <div class="topic-grid" id="topicGrid"></div>
         <div class="mindmap-panel" id="mindmapPanel"></div>
+      </section>
+
+      <section id="tutorials" class="section">
+        <div class="section-head">
+          <h3>Tutorial Drills</h3>
+          <p>These are built from the tutorial PDF: short concept refreshers plus tweaked edge-case questions that test whether you can transfer the idea.</p>
+        </div>
+        <div class="mini-grid" id="tutorialGrid"></div>
+        <div class="split">
+          <div class="scenario-card">
+            <div class="scenario-meta">
+              <span class="tag" id="tutorialTopic">Topic</span>
+              <span class="tag" id="tutorialDifficulty">Edge case</span>
+            </div>
+            <p class="scenario-question" id="tutorialQuestion">Question</p>
+            <div class="scenario-answer" id="tutorialAnswer">Answer</div>
+            <div class="quiz-controls">
+              <button id="nextTutorial" class="primary">Next Edge Case</button>
+              <button id="revealTutorial">Reveal Marking Points</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>How to use these</h4>
+            <div class="prompt-list">
+              <label class="prompt"><input type="checkbox" data-task="tutorial1"><span><b>Answer in complete sentences</b>The tutorial explicitly pushes full explanations, not keyword-only answers.</span><span class="tag">Writing</span></label>
+              <label class="prompt"><input type="checkbox" data-task="tutorial2"><span><b>Try 8 edge cases</b>Say what changes when the data, metric, architecture, or assumption changes.</span><span class="tag">Transfer</span></label>
+              <label class="prompt"><input type="checkbox" data-task="tutorial3"><span><b>Repair one weak answer</b>Rewrite the lowest-confidence answer from memory.</span><span class="tag">Fix</span></label>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section id="flashcards" class="section">
@@ -1334,6 +1402,174 @@ into non-linear neuron output.</code>
       }
     ];
 
+    const tutorialTopics = [
+      {
+        title: "Complete-sentence answers",
+        detail: "Tutorial 1 emphasises explaining concepts clearly with examples, not just naming terms.",
+        focus: "Definition + example + limitation"
+      },
+      {
+        title: "ML workflow",
+        detail: "Define the problem, collect/prepare data, choose a model, train, evaluate, tune, and monitor.",
+        focus: "Pick metrics that match the task"
+      },
+      {
+        title: "Probability and likelihood",
+        detail: "Complements, dependent events, Gaussian modelling, and likelihood as a parameter function.",
+        focus: "Likelihood is not probability"
+      },
+      {
+        title: "Neural network training",
+        detail: "Layers, activations, forward pass, loss, backpropagation, gradients, and regularisation.",
+        focus: "Avoid overfitting"
+      },
+      {
+        title: "CNN details",
+        detail: "Small filters, stride output size, padding, batch normalisation, pooling, and overfitting risk.",
+        focus: "Calculate output shape"
+      },
+      {
+        title: "RNN and LSTM",
+        detail: "Hidden state, unrolling, BPTT, long-term dependencies, gradient clipping, and forget gates.",
+        focus: "Sequence memory"
+      }
+    ];
+
+    const tutorialEdgeCases = [
+      {
+        topic: "Supervised vs unsupervised",
+        difficulty: "label trap",
+        question: "A fraud dataset has transactions marked normal/fraud for 5% of rows, but the remaining rows are unlabelled. Would you call the whole task supervised, unsupervised, or something else?",
+        answer: "Do not call it purely supervised unless the training method uses only labelled examples. A good answer says it is a mixed/semi-supervised setting or that you must define whether the model trains on labelled fraud examples, unlabelled structure, or both."
+      },
+      {
+        topic: "Classification vs regression",
+        difficulty: "target trap",
+        question: "A model predicts a risk score from 0 to 1, then the app turns scores above 0.7 into 'high risk'. Is the model doing regression or classification?",
+        answer: "The model output is continuous, so the prediction step is regression/scoring. The final thresholded decision is classification. Mention both stages."
+      },
+      {
+        topic: "Anomaly detection",
+        difficulty: "boundary trap",
+        question: "If anomaly detection has no labelled anomalies, why is it not ordinary classification?",
+        answer: "Classification learns from labelled classes. Unlabelled anomaly detection learns normal patterns or structure, then flags unusual points. It can become supervised if labelled anomalies are used."
+      },
+      {
+        topic: "ML workflow",
+        difficulty: "metric mismatch",
+        question: "You trained a house-price model and report only accuracy. What is wrong?",
+        answer: "House price is continuous, so accuracy is usually the wrong metric. Use regression metrics such as MSE, RMSE, MAE, or R-squared, depending on the exam framing."
+      },
+      {
+        topic: "ML workflow",
+        difficulty: "data leakage",
+        question: "You normalise the whole dataset before train/test split. Why might this be unfair?",
+        answer: "Information from the test set leaks into training through the preprocessing statistics. Fit preprocessing on the training set only, then apply it to validation/test data."
+      },
+      {
+        topic: "Linear regression",
+        difficulty: "assumption edge",
+        question: "Your linear model fits training data well, but residuals curve upward for large x. What should you say?",
+        answer: "The linearity assumption is probably violated. Consider polynomial/features, another model, or explain that extrapolation will be risky."
+      },
+      {
+        topic: "Overfitting",
+        difficulty: "low loss trap",
+        question: "A model gets near-zero training MSE and terrible test MSE. What likely happened and what fixes match the notes?",
+        answer: "It overfit training noise. Fixes include reducing complexity, regularisation, dropout for neural nets, more data, and cross-validation for tuning."
+      },
+      {
+        topic: "Probability complement",
+        difficulty: "basic edge",
+        question: "If P(A)=0.3, what is P(not A), and when would this simple rule fail?",
+        answer: "P(not A)=1-P(A)=0.7. The rule itself does not fail for a valid event, but it fails if P(A) is not a valid probability or A is not clearly defined."
+      },
+      {
+        topic: "Dependent events",
+        difficulty: "conditional wording",
+        question: "Why can P(play tennis | raining) differ from P(play tennis)?",
+        answer: "Because raining can affect whether tennis is played. Conditioning updates the probability based on known information."
+      },
+      {
+        topic: "Likelihood",
+        difficulty: "probability wording",
+        question: "A likelihood value is 4.8. Is that impossible because probabilities must be at most 1?",
+        answer: "No. For continuous variables, likelihood comes from evaluating a density and is not a probability. Densities can exceed 1 while still integrating to 1."
+      },
+      {
+        topic: "Gaussian modelling",
+        difficulty: "noise edge",
+        question: "Why might Gaussian noise be a modelling assumption rather than a guaranteed fact?",
+        answer: "The true errors may not be normally distributed. Gaussian noise is convenient and often reasonable, but you should check residuals and uncertainty."
+      },
+      {
+        topic: "Activation functions",
+        difficulty: "linear stack trap",
+        question: "If a deep network used no activation functions, what kind of relationship would stacked layers still represent?",
+        answer: "A composition of linear transformations is still linear, so the network would lose the ability to model non-linear patterns."
+      },
+      {
+        topic: "ReLU",
+        difficulty: "dying ReLU",
+        question: "Why can ReLU help with gradients but still create dead neurons?",
+        answer: "ReLU is simple and helps reduce vanishing-gradient issues for positive inputs. But if a neuron outputs 0 for all inputs, its gradient can stay 0 and it stops learning."
+      },
+      {
+        topic: "Backpropagation",
+        difficulty: "role trap",
+        question: "Does backpropagation choose the model architecture?",
+        answer: "No. Backpropagation computes gradients for weights and biases in a chosen architecture. Architecture and hyperparameters are design/tuning choices."
+      },
+      {
+        topic: "Regularisation",
+        difficulty: "too much regularisation",
+        question: "Can regularisation ever hurt performance?",
+        answer: "Yes. Too much regularisation can underfit by making the model too simple to capture real signal."
+      },
+      {
+        topic: "CNN filters",
+        difficulty: "parameter edge",
+        question: "Why might three 3x3 convolution layers be preferred over one 7x7 layer?",
+        answer: "They can use fewer parameters, add more non-linearities, improve efficiency, and reduce overfitting risk while covering a similar receptive field."
+      },
+      {
+        topic: "CNN stride",
+        difficulty: "shape calculation",
+        question: "For input size 32, filter 3, padding 1, stride 2, what is the convolution output size?",
+        answer: "Use O = floor((N + 2P - F) / S) + 1. O = floor((32 + 2 - 3) / 2) + 1 = floor(31/2) + 1 = 16."
+      },
+      {
+        topic: "Batch normalisation",
+        difficulty: "inference edge",
+        question: "Batch norm uses mini-batch statistics during training. What should happen during inference?",
+        answer: "Use learned/running population statistics rather than depending on the current test batch, so predictions are stable."
+      },
+      {
+        topic: "RNN hidden state",
+        difficulty: "memory trap",
+        question: "Does an RNN hidden state store the entire raw sequence perfectly?",
+        answer: "No. It is a compressed learned state that carries information from previous steps, and it may lose long-term information."
+      },
+      {
+        topic: "RNN unrolling",
+        difficulty: "training reason",
+        question: "Why do we unroll an RNN through time for training?",
+        answer: "Unrolling turns the recurrent computation into a time-expanded graph so backpropagation through time can compute gradients across steps."
+      },
+      {
+        topic: "Long-term dependencies",
+        difficulty: "gradient edge",
+        question: "Why can RNNs struggle with a word at the start of a long sentence affecting the final output?",
+        answer: "Gradients may vanish or explode across many time steps. LSTM/GRU gates and gradient clipping are common fixes."
+      },
+      {
+        topic: "LSTM forget gate",
+        difficulty: "gate role",
+        question: "If the forget gate output is close to 0 for part of the cell state, what happens?",
+        answer: "That information is mostly discarded from the previous cell state. Close to 1 means it is mostly kept."
+      }
+    ];
+
     const cards = [
       ["ML Foundations", "What makes supervised learning supervised?", "It learns from labelled examples: each training input has a corresponding target or class label."],
       ["ML Foundations", "Regression or classification: predicting a stock price?", "Regression, because the target is continuous."],
@@ -1392,7 +1628,21 @@ into non-linear neuron output.</code>
       { q: "RNNs are useful because they:", a: ["Learn from sequences", "Only handle images", "Cannot use activation functions", "Remove memory"], c: 0, e: "The notes describe RNNs as sequence models with a temporal loop." },
       { q: "LSTMs are a kind of:", a: ["Random variable", "RNN", "Linear matrix", "Pooling layer"], c: 1, e: "The notes call LSTM a unique kind of RNN." },
       { q: "The LSTM forget gate decides whether to:", a: ["Keep or discard information", "Invert X.T X", "Turn classes into labels", "Create a convolution kernel"], c: 0, e: "The forget gate controls what previous cell-state information is retained." },
-      { q: "The safest definition of noise in these notes is:", a: ["Only audio corruption", "Errors or random events that cannot be predicted", "Always removable by ReLU", "A class label"], c: 1, e: "The notes quote noise as errors in data or random events that cannot be predicted." }
+      { q: "The safest definition of noise in these notes is:", a: ["Only audio corruption", "Errors or random events that cannot be predicted", "Always removable by ReLU", "A class label"], c: 1, e: "The notes quote noise as errors in data or random events that cannot be predicted." },
+      { q: "A risk model outputs 0.82, then a rule labels it 'high risk'. What is the best description?", a: ["Pure clustering", "Regression/scoring followed by classification", "Only reinforcement learning", "Projection only"], c: 1, e: "The continuous score is regression-like; the thresholded label is a classification decision." },
+      { q: "Normalising the full dataset before splitting can cause:", a: ["Data leakage", "A larger filter size", "A missing activation", "A discrete density"], c: 0, e: "The test-set statistics influence training preprocessing, making evaluation too optimistic." },
+      { q: "If a model has near-zero training error but high test error, the likely issue is:", a: ["Underfitting", "Overfitting", "Correct generalisation", "No labels exist"], c: 1, e: "This is the classic training-noise memorisation pattern." },
+      { q: "If P(A)=0.3, P(not A) is:", a: ["0.3", "0.7", "1.3", "Cannot be between 0 and 1"], c: 1, e: "Complement probability is 1 - P(A), so 0.7." },
+      { q: "A likelihood value greater than 1 for a continuous model is:", a: ["Always impossible", "Possible because density values are not probabilities", "Proof of classification", "The same as accuracy"], c: 1, e: "Continuous densities can exceed 1; likelihood is not bounded like probability." },
+      { q: "Without activation functions, many stacked neural-network layers collapse into:", a: ["A linear transformation", "A CNN pooling layer", "A probability complement", "A labelled dataset"], c: 0, e: "Composing linear transformations still gives a linear transformation." },
+      { q: "The 'dying ReLU' problem means:", a: ["A ReLU neuron can output zero and stop learning", "ReLU always outputs negative values", "ReLU is a probability", "ReLU removes all overfitting"], c: 0, e: "If a ReLU unit stays inactive, gradients can remain zero." },
+      { q: "Backpropagation mainly computes:", a: ["Gradients for weights and biases", "The train/test split", "Whether data is labelled", "The number of raw input files"], c: 0, e: "Backprop efficiently calculates how parameters should change to reduce loss." },
+      { q: "Three stacked 3x3 CNN filters can be preferred over one 7x7 filter because they:", a: ["Use more labels", "Can reduce parameters and add more non-linearities", "Prevent all noise", "Make the task unsupervised"], c: 1, e: "The tutorial notes fewer weights and repeated activations/non-linearities." },
+      { q: "For N=32, F=3, P=1, S=2, convolution output size is:", a: ["15", "16", "30", "32"], c: 1, e: "floor((32 + 2*1 - 3) / 2) + 1 = 16." },
+      { q: "During inference, batch normalisation should usually use:", a: ["Random labels", "Running/learned statistics", "Only the first pixel", "No learned parameters ever"], c: 1, e: "Training uses mini-batch statistics; inference uses stable learned/running statistics." },
+      { q: "RNN unrolling is important because it enables:", a: ["Backpropagation through time", "Matrix inversion for linear regression only", "A 7x7 convolution", "Complement probability"], c: 0, e: "Unrolling exposes the repeated time-step graph for gradient computation." },
+      { q: "A common fix for exploding gradients in RNN training is:", a: ["Gradient clipping", "Removing all hidden states", "Using only test data", "Increasing stride"], c: 0, e: "Clipping caps gradient norm to prevent unstable updates." },
+      { q: "If an LSTM forget gate is close to 1, it tends to:", a: ["Keep previous cell-state information", "Discard all memory", "Create a convolution filter", "Compute MSE directly"], c: 0, e: "Forget gate values near 1 preserve information; near 0 discard it." }
     ];
 
     const examPrompts = [
@@ -1466,6 +1716,8 @@ into non-linear neuron output.</code>
     let answered = false;
     let correct = 0;
     let attempted = 0;
+    let tutorialIndex = 0;
+    let tutorialAnsweredCount = 0;
     let timerSeconds = 480;
     let timerId = null;
 
@@ -1543,6 +1795,42 @@ into non-linear neuron output.</code>
           `).join("")}
         </div>
       `;
+    }
+
+    function renderTutorialGrid() {
+      $("#tutorialGrid").innerHTML = tutorialTopics.map(item => `
+        <article class="formula-note">
+          <h5>${escapeHtml(item.title)}</h5>
+          <p>${escapeHtml(item.detail)}</p>
+          <code>${escapeHtml(item.focus)}</code>
+        </article>
+      `).join("");
+    }
+
+    function renderTutorialQuestion() {
+      const item = tutorialEdgeCases[tutorialIndex];
+      $("#tutorialTopic").textContent = item.topic;
+      $("#tutorialDifficulty").textContent = item.difficulty;
+      $("#tutorialQuestion").textContent = item.question;
+      $("#tutorialAnswer").textContent = item.answer;
+      $("#tutorialAnswer").classList.remove("show");
+    }
+
+    function nextTutorialQuestion() {
+      tutorialIndex = (tutorialIndex + 1) % tutorialEdgeCases.length;
+      renderTutorialQuestion();
+    }
+
+    function revealTutorialAnswer() {
+      $("#tutorialAnswer").classList.add("show");
+      tutorialAnsweredCount += 1;
+      if (tutorialAnsweredCount >= 8) {
+        const tutorialTask = document.querySelector('[data-task="tutorial2"]');
+        if (tutorialTask) {
+          tutorialTask.checked = true;
+          updateProgress();
+        }
+      }
     }
 
     function renderCard() {
@@ -1768,6 +2056,8 @@ into non-linear neuron output.</code>
     });
     $("#nextQuestion").addEventListener("click", nextQuestion);
     $("#restartQuiz").addEventListener("click", restartQuiz);
+    $("#nextTutorial").addEventListener("click", nextTutorialQuestion);
+    $("#revealTutorial").addEventListener("click", revealTutorialAnswer);
     $("#calcBtn").addEventListener("click", calculatePrediction);
     $("#activationBtn").addEventListener("click", calculateActivations);
     $("#timerStart").addEventListener("click", startTimer);
@@ -1796,6 +2086,8 @@ into non-linear neuron output.</code>
     });
 
     renderTopics();
+    renderTutorialGrid();
+    renderTutorialQuestion();
     renderCard();
     restartQuiz();
     calculatePrediction();
